@@ -1,0 +1,111 @@
+# ==============================================================
+# Personal Finance Dashboard — Main Application Configuration
+# ==============================================================
+# This file holds settings shared across ALL profiles (dev, docker, prod).
+# Profile-specific overrides go in application-{profile}.yml files.
+# Activate a profile via: SPRING_PROFILES_ACTIVE=dev (env var) or --spring.profiles.active=dev (CLI)
+# ==============================================================
+
+server:
+  port: 8080
+
+# ---- Spring Core ----
+spring:
+  application:
+    name: personal-finance-dashboard
+
+  # ---- PostgreSQL Datasource ----
+  # Default values point to local Docker container (see docker-compose.yml).
+  # Override via environment variables in production:
+  #   SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
+  datasource:
+    url: jdbc:postgresql://localhost:5432/finance_db
+    username: finance_user
+    password: finance_pass
+    driver-class-name: org.postgresql.Driver
+
+    # HikariCP connection pool settings (Spring Boot default pool)
+    hikari:
+      maximum-pool-size: 10          # max simultaneous DB connections
+      minimum-idle: 5                # keep at least 5 idle connections ready
+      connection-timeout: 20000      # 20s max wait for a connection from pool
+      idle-timeout: 300000           # 5min before idle connections are removed
+
+  # ---- JPA / Hibernate ----
+  jpa:
+    # "validate" = Hibernate checks that entities match the DB schema but does NOT modify tables.
+    # We use Flyway for all schema changes, so Hibernate should never alter the DB.
+    hibernate:
+      ddl-auto: validate
+
+    # Log SQL statements to console (useful for debugging, disable in prod)
+    show-sql: true
+
+    properties:
+      hibernate:
+        # Format SQL output for readability in logs
+        format_sql: true
+        # Use PostgreSQL-specific dialect for optimal SQL generation
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+    # Prevent lazy-loading issues outside transactions (safer default)
+    open-in-view: false
+
+  # ---- Flyway Database Migrations ----
+  # Flyway runs SQL scripts from src/main/resources/db/migration/ on startup.
+  # Scripts are named V1__description.sql, V2__description.sql, etc.
+  # Once a migration runs, its checksum is stored in the flyway_schema_history table.
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true        # handle existing databases gracefully
+
+  # ---- Jackson JSON Serialization ----
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false   # output dates as "2026-02-15" not 1739577600000
+    default-property-inclusion: non_null  # skip null fields in JSON responses
+
+# ---- JWT Configuration ----
+# IMPORTANT: Change the secret in production! Use a 256-bit+ key.
+# You can generate one with: openssl rand -base64 32
+app:
+  jwt:
+    secret: bXlfc3VwZXJfc2VjcmV0X2tleV9mb3JfZmluYW5jZV9hcHBfMjAyNl9jaGFuZ2VfaW5fcHJvZA==
+    access-token-expiration: 900000      # 15 minutes in milliseconds
+    refresh-token-expiration: 604800000  # 7 days in milliseconds
+
+  # ---- Demo Data ----
+  # When true, DemoDataSeeder inserts sample user + transactions on startup
+  demo-data:
+    enabled: false
+
+# ---- SpringDoc / Swagger UI ----
+# Access interactive API docs at: http://localhost:8080/swagger-ui.html
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method       # sort endpoints by HTTP method
+    tags-sorter: alpha              # sort tag groups alphabetically
+
+# ---- Actuator ----
+# Expose health endpoint for Docker healthcheck and monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# ---- Logging ----
+logging:
+  level:
+    com.financeapp: DEBUG                          # our app: verbose logging
+    org.springframework.security: INFO             # security events
+    org.hibernate.SQL: DEBUG                        # log SQL statements
+    org.hibernate.type.descriptor.sql: TRACE        # log SQL parameter values
+    org.flywaydb: INFO                             # migration progress

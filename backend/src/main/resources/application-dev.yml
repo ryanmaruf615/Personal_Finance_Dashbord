@@ -1,0 +1,47 @@
+# ==============================================================
+# DEV Profile — application-dev.yml
+# ==============================================================
+# Activated by: SPRING_PROFILES_ACTIVE=dev
+#
+# Use this profile during local development. It enables:
+#   - Verbose SQL logging (see every query + its parameter values)
+#   - Demo data seeding (pre-populated dashboard for testing)
+#   - Relaxed security logging (easier to debug auth issues)
+#
+# The datasource URL still points to localhost:5432, which is the
+# PostgreSQL container started via: docker compose up postgres -d
+# ==============================================================
+
+spring:
+  # In dev, we might want Hibernate to help catch schema mismatches early.
+  # Still set to "validate" because Flyway manages the schema,
+  # but you could temporarily change to "update" for rapid prototyping.
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # DevTools auto-restart is already on by default when devtools is on classpath,
+  # but we can fine-tune it here if needed:
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+# Enable demo data in dev so the dashboard is pre-populated
+app:
+  demo-data:
+    enabled: true
+
+# More verbose logging for development
+logging:
+  level:
+    com.financeapp: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
