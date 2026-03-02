@@ -28,14 +28,11 @@ import org.springframework.context.annotation.Configuration;
 )
 @SecurityScheme(
         name = "bearerAuth",
-        description = "JWT Bearer token authentication. Obtain a token from /api/auth/login",
+        description = "JWT Bearer token authentication",
         scheme = "bearer",
         type = SecuritySchemeType.HTTP,
         bearerFormat = "JWT",
         in = SecuritySchemeIn.HEADER
 )
 public class SwaggerConfig {
-    // All configuration is handled via annotations above.
-    // Swagger UI available at: /swagger-ui.html
-    // API docs at: /v3/api-docs
 }

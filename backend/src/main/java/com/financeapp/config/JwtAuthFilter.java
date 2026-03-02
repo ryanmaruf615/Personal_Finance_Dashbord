@@ -32,7 +32,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // Extract Authorization header
         final String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -45,7 +44,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             final String username = jwtService.extractUsername(jwt);
 
-            // Only authenticate if username found and not already authenticated
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
@@ -67,7 +65,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         } catch (Exception e) {
             log.error("JWT authentication failed: {}", e.getMessage());
-            // Don't set auth — request continues as unauthenticated
         }
 
         filterChain.doFilter(request, response);
@@ -76,6 +73,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return path.startsWith("/api/auth/");
+        return path.equals("/api/auth/register")
+                || path.equals("/api/auth/login")
+                || path.equals("/api/auth/refresh");
     }
 }
