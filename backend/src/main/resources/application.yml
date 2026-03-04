@@ -109,3 +109,15 @@ logging:
     org.hibernate.SQL: DEBUG                        # log SQL statements
     org.hibernate.type.descriptor.sql: TRACE        # log SQL parameter values
     org.flywaydb: INFO                             # migration progress
+
+
+application:
+  security:
+    jwt:
+      # Base64-encoded 256-bit key — generate your own with:
+      #   openssl rand -base64 32
+      secret-key: "bXktc3VwZXItc2VjcmV0LWtleS1mb3ItZmludHJhY2stand0LXNpZ25pbmc="
+      # 15 minutes in milliseconds
+      access-token-expiration: 900000
+      # 7 days in milliseconds
+      refresh-token-expiration: 604800000
