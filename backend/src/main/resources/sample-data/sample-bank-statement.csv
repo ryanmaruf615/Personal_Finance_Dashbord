@@ -1,0 +1,11 @@
+date,description,amount,type,category
+2026-03-01,Monthly Salary,3500.00,INCOME,Salary
+2026-03-02,REWE Supermarket,-45.30,EXPENSE,Food
+2026-03-03,Netflix Subscription,-12.99,EXPENSE,Entertainment
+2026-03-04,DB Train Ticket,-29.90,EXPENSE,Transport
+2026-03-05,Pharmacy Medicine,-18.50,EXPENSE,Health
+2026-03-07,Rent Payment,-850.00,EXPENSE,Housing
+2026-03-10,Freelance Project,750.00,INCOME,Salary
+2026-03-12,Amazon Books,-34.99,EXPENSE,Shopping
+2026-03-15,Electric Bill,-65.00,EXPENSE,Utilities
+2026-03-18,Birthday Gift for Mom,-45.00,EXPENSE,Gifts

@@ -14,12 +14,18 @@ spring:
   application:
     name: personal-finance-dashboard
 
+  # ---- File Upload ----
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
   # ---- PostgreSQL Datasource ----
   # Default values point to local Docker container (see docker-compose.yml).
   # Override via environment variables in production:
   #   SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
   datasource:
-    url: jdbc:postgresql://localhost:5432/finance_db
+    url: jdbc:postgresql://localhost:5433/finance_db
     username: finance_user
     password: finance_pass
     driver-class-name: org.postgresql.Driver
@@ -58,7 +64,7 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
-    baseline-on-migrate: true        # handle existing databases gracefully
+    baseline-on-migrate: false        # handle existing databases gracefully
 
   # ---- Jackson JSON Serialization ----
   jackson:
@@ -109,15 +115,3 @@ logging:
     org.hibernate.SQL: DEBUG                        # log SQL statements
     org.hibernate.type.descriptor.sql: TRACE        # log SQL parameter values
     org.flywaydb: INFO                             # migration progress
-
-
-application:
-  security:
-    jwt:
-      # Base64-encoded 256-bit key — generate your own with:
-      #   openssl rand -base64 32
-      secret-key: "bXktc3VwZXItc2VjcmV0LWtleS1mb3ItZmludHJhY2stand0LXNpZ25pbmc="
-      # 15 minutes in milliseconds
-      access-token-expiration: 900000
-      # 7 days in milliseconds
-      refresh-token-expiration: 604800000

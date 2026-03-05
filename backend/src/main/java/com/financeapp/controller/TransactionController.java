@@ -1,9 +1,12 @@
 package com.financeapp.controller;
 
 import com.financeapp.dto.request.TransactionRequest;
+import com.financeapp.dto.response.CsvImportResultResponse;
+import com.financeapp.dto.response.CsvPreviewResponse;
 import com.financeapp.dto.response.PageResponse;
 import com.financeapp.dto.response.TransactionResponse;
 import com.financeapp.enums.TransactionType;
+import com.financeapp.service.CsvImportService;
 import com.financeapp.service.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,9 +17,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -27,6 +32,7 @@ import java.time.LocalDate;
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final CsvImportService csvImportService;
 
     @GetMapping
     @Operation(summary = "Get transactions with filtering, pagination, and sorting")
@@ -88,5 +94,30 @@ public class TransactionController {
     ) {
         transactionService.deleteTransaction(authentication.getName(), id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ─── CSV Import Endpoints ───────────────────────────────────────
+
+    @PostMapping(value = "/import/preview", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Preview a CSV file before importing (validate rows, detect duplicates)")
+    public ResponseEntity<CsvPreviewResponse> previewCsvImport(
+            Authentication authentication,
+            @RequestParam("file") MultipartFile file
+    ) {
+        CsvPreviewResponse response = csvImportService.previewCsv(authentication.getName(), file);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(value = "/import/confirm", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Import transactions from a CSV file into a specific account")
+    public ResponseEntity<CsvImportResultResponse> importCsv(
+            Authentication authentication,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam Long accountId
+    ) {
+        CsvImportResultResponse response = csvImportService.importCsv(
+                authentication.getName(), file, accountId
+        );
+        return ResponseEntity.ok(response);
     }
 }

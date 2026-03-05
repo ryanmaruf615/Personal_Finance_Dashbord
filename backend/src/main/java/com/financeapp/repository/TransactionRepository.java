@@ -42,10 +42,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
 
     // ─── Analytics Queries ──────────────────────────────────────────
 
-    /**
-     * Monthly income/expense summary using convertedAmount (EUR).
-     * Returns [yearMonth(String), income(BigDecimal), expenses(BigDecimal)]
-     */
     @Query(value = "SELECT TO_CHAR(t.transaction_date, 'YYYY-MM') AS month, " +
            "COALESCE(SUM(CASE WHEN t.type = 'INCOME' THEN t.converted_amount ELSE 0 END), 0) AS income, " +
            "COALESCE(SUM(CASE WHEN t.type = 'EXPENSE' THEN t.converted_amount ELSE 0 END), 0) AS expenses " +
@@ -61,10 +57,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
             @Param("startDate") LocalDate startDate
     );
 
-    /**
-     * Category breakdown for expenses in a date range.
-     * Returns [categoryId(Long), categoryName(String), icon(String), totalAmount(BigDecimal)]
-     */
     @Query(value = "SELECT c.id AS category_id, c.name AS category_name, c.icon, " +
            "COALESCE(SUM(t.converted_amount), 0) AS total_amount " +
            "FROM transactions t " +
@@ -83,10 +75,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
             @Param("endDate") LocalDate endDate
     );
 
-    /**
-     * Daily spending totals for a date range.
-     * Returns [date(LocalDate), totalAmount(BigDecimal)]
-     */
     @Query(value = "SELECT t.transaction_date, " +
            "COALESCE(SUM(t.converted_amount), 0) AS total_amount " +
            "FROM transactions t " +
@@ -104,10 +92,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
             @Param("endDate") LocalDate endDate
     );
 
-    /**
-     * Top spending categories with transaction count.
-     * Returns [categoryId(Long), categoryName(String), icon(String), totalAmount(BigDecimal), txCount(Long)]
-     */
     @Query(value = "SELECT c.id AS category_id, c.name AS category_name, c.icon, " +
            "COALESCE(SUM(t.converted_amount), 0) AS total_amount, " +
            "COUNT(t.id) AS tx_count " +
@@ -129,10 +113,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
             @Param("lim") int limit
     );
 
-    /**
-     * Income and expense totals for a specific month.
-     * Returns [income(BigDecimal), expenses(BigDecimal)]
-     */
     @Query(value = "SELECT " +
            "COALESCE(SUM(CASE WHEN t.type = 'INCOME' THEN t.converted_amount ELSE 0 END), 0) AS income, " +
            "COALESCE(SUM(CASE WHEN t.type = 'EXPENSE' THEN t.converted_amount ELSE 0 END), 0) AS expenses " +
@@ -147,4 +127,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    // ─── Admin Query ────────────────────────────────────────────────
+
+    @Query(value = "SELECT " +
+           "COALESCE(SUM(CASE WHEN t.type = 'INCOME' THEN t.converted_amount ELSE 0 END), 0) AS total_income, " +
+           "COALESCE(SUM(CASE WHEN t.type = 'EXPENSE' THEN t.converted_amount ELSE 0 END), 0) AS total_expenses " +
+           "FROM transactions t",
+           nativeQuery = true)
+    List<Object[]> getAllUsersTotals();
 }
