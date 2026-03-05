@@ -1,0 +1,43 @@
+# ==============================================================
+# Test Profile Configuration
+# ==============================================================
+# Uses H2 in-memory database, disables Flyway,
+# and provides a test JWT secret.
+# Activated via @ActiveProfiles("test") on test classes.
+# ==============================================================
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.H2Dialect
+    open-in-view: false
+
+  flyway:
+    enabled: false
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+app:
+  jwt:
+    secret: dGVzdC1zZWNyZXQta2V5LWZvci11bml0LXRlc3RzLW9ubHktZG8tbm90LXVzZS1pbi1wcm9k
+    access-token-expiration: 900000
+    refresh-token-expiration: 604800000
+
+logging:
+  level:
+    root: WARN
+    com.financeapp: INFO
