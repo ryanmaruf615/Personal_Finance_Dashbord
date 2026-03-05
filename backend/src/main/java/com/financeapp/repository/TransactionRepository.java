@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -26,10 +27,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
            "WHERE t.id = :id AND a.user.id = :userId")
     Optional<Transaction> findByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
 
-    /**
-     * Sum all EXPENSE transactions for a specific user + category within a date range.
-     * Used by BudgetService to calculate amount spent per category per month.
-     */
     @Query("SELECT COALESCE(SUM(t.convertedAmount), 0) FROM Transaction t " +
            "WHERE t.account.user.id = :userId " +
            "AND t.category.id = :categoryId " +
@@ -39,6 +36,114 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
     BigDecimal sumExpenseByUserAndCategoryAndDateRange(
             @Param("userId") Long userId,
             @Param("categoryId") Long categoryId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    // ─── Analytics Queries ──────────────────────────────────────────
+
+    /**
+     * Monthly income/expense summary using convertedAmount (EUR).
+     * Returns [yearMonth(String), income(BigDecimal), expenses(BigDecimal)]
+     */
+    @Query(value = "SELECT TO_CHAR(t.transaction_date, 'YYYY-MM') AS month, " +
+           "COALESCE(SUM(CASE WHEN t.type = 'INCOME' THEN t.converted_amount ELSE 0 END), 0) AS income, " +
+           "COALESCE(SUM(CASE WHEN t.type = 'EXPENSE' THEN t.converted_amount ELSE 0 END), 0) AS expenses " +
+           "FROM transactions t " +
+           "JOIN accounts a ON t.account_id = a.id " +
+           "WHERE a.user_id = :userId " +
+           "AND t.transaction_date >= :startDate " +
+           "GROUP BY TO_CHAR(t.transaction_date, 'YYYY-MM') " +
+           "ORDER BY month ASC",
+           nativeQuery = true)
+    List<Object[]> getMonthlySummary(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDate startDate
+    );
+
+    /**
+     * Category breakdown for expenses in a date range.
+     * Returns [categoryId(Long), categoryName(String), icon(String), totalAmount(BigDecimal)]
+     */
+    @Query(value = "SELECT c.id AS category_id, c.name AS category_name, c.icon, " +
+           "COALESCE(SUM(t.converted_amount), 0) AS total_amount " +
+           "FROM transactions t " +
+           "JOIN accounts a ON t.account_id = a.id " +
+           "JOIN categories c ON t.category_id = c.id " +
+           "WHERE a.user_id = :userId " +
+           "AND t.type = 'EXPENSE' " +
+           "AND t.transaction_date >= :startDate " +
+           "AND t.transaction_date <= :endDate " +
+           "GROUP BY c.id, c.name, c.icon " +
+           "ORDER BY total_amount DESC",
+           nativeQuery = true)
+    List<Object[]> getCategoryBreakdown(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    /**
+     * Daily spending totals for a date range.
+     * Returns [date(LocalDate), totalAmount(BigDecimal)]
+     */
+    @Query(value = "SELECT t.transaction_date, " +
+           "COALESCE(SUM(t.converted_amount), 0) AS total_amount " +
+           "FROM transactions t " +
+           "JOIN accounts a ON t.account_id = a.id " +
+           "WHERE a.user_id = :userId " +
+           "AND t.type = 'EXPENSE' " +
+           "AND t.transaction_date >= :startDate " +
+           "AND t.transaction_date <= :endDate " +
+           "GROUP BY t.transaction_date " +
+           "ORDER BY t.transaction_date ASC",
+           nativeQuery = true)
+    List<Object[]> getDailySpending(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    /**
+     * Top spending categories with transaction count.
+     * Returns [categoryId(Long), categoryName(String), icon(String), totalAmount(BigDecimal), txCount(Long)]
+     */
+    @Query(value = "SELECT c.id AS category_id, c.name AS category_name, c.icon, " +
+           "COALESCE(SUM(t.converted_amount), 0) AS total_amount, " +
+           "COUNT(t.id) AS tx_count " +
+           "FROM transactions t " +
+           "JOIN accounts a ON t.account_id = a.id " +
+           "JOIN categories c ON t.category_id = c.id " +
+           "WHERE a.user_id = :userId " +
+           "AND t.type = 'EXPENSE' " +
+           "AND t.transaction_date >= :startDate " +
+           "AND t.transaction_date <= :endDate " +
+           "GROUP BY c.id, c.name, c.icon " +
+           "ORDER BY total_amount DESC " +
+           "LIMIT :lim",
+           nativeQuery = true)
+    List<Object[]> getTopCategories(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("lim") int limit
+    );
+
+    /**
+     * Income and expense totals for a specific month.
+     * Returns [income(BigDecimal), expenses(BigDecimal)]
+     */
+    @Query(value = "SELECT " +
+           "COALESCE(SUM(CASE WHEN t.type = 'INCOME' THEN t.converted_amount ELSE 0 END), 0) AS income, " +
+           "COALESCE(SUM(CASE WHEN t.type = 'EXPENSE' THEN t.converted_amount ELSE 0 END), 0) AS expenses " +
+           "FROM transactions t " +
+           "JOIN accounts a ON t.account_id = a.id " +
+           "WHERE a.user_id = :userId " +
+           "AND t.transaction_date >= :startDate " +
+           "AND t.transaction_date <= :endDate",
+           nativeQuery = true)
+    Object[] getMonthTotals(
+            @Param("userId") Long userId,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
