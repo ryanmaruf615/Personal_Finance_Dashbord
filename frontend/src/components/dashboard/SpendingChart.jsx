@@ -1,77 +1,101 @@
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { CHART_COLORS } from '../../utils/chartColors';
 
-const SkeletonChart = () => (
-  <div className="animate-pulse">
-    <div className="h-4 w-32 bg-gray-200 rounded mb-4" />
-    <div className="flex items-end gap-2 h-48">
-      {[...Array(6)].map((_, i) => (
-        <div key={i} className="flex-1 flex gap-1">
-          <div className="flex-1 bg-gray-200 rounded-t" style={{ height: `${40 + Math.random() * 60}%` }} />
-          <div className="flex-1 bg-gray-100 rounded-t" style={{ height: `${30 + Math.random() * 50}%` }} />
+const SkeletonPie = () => (
+  <div className="animate-pulse flex flex-col sm:flex-row items-center gap-6">
+    <div className="w-44 h-44 bg-gray-200 rounded-full flex-shrink-0" />
+    <div className="space-y-3 flex-1 w-full">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <div className="w-3 h-3 bg-gray-200 rounded" />
+          <div className="h-3 bg-gray-200 rounded flex-1" />
         </div>
       ))}
     </div>
   </div>
 );
 
-const SpendingChart = ({ monthlySummary, loading }) => {
+const CustomTooltip = ({ active, payload }) => {
+  if (!active || !payload?.length) return null;
+  const d = payload[0].payload;
+  return (
+    <div className="bg-[#1E293B] text-white px-3 py-2 rounded-lg shadow-lg text-sm">
+      <p className="font-medium">{d.categoryName}</p>
+      <p className="text-gray-300 mt-0.5">
+        {formatCurrency(d.amount)} · {d.percentage.toFixed(1)}%
+      </p>
+    </div>
+  );
+};
+
+const SpendingChart = ({ categoryBreakdown, loading }) => {
   if (loading) {
     return (
       <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <SkeletonChart />
+        <div className="h-5 w-40 bg-gray-200 rounded mb-6 animate-pulse" />
+        <SkeletonPie />
       </div>
     );
   }
 
-  const data = monthlySummary || [];
-  const maxVal = Math.max(...data.map((d) => Math.max(d.income, d.expenses)), 1);
+  const data = (categoryBreakdown || []).map((item, i) => ({
+    ...item,
+    color: item.color || CHART_COLORS[i % CHART_COLORS.length],
+  }));
+
+  const total = data.reduce((sum, d) => sum + d.amount, 0);
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-base font-semibold text-gray-900">Income vs Expenses</h3>
-        <div className="flex items-center gap-4 text-xs">
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded bg-emerald-500" />
-            <span className="text-gray-500">Income</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded bg-red-400" />
-            <span className="text-gray-500">Expenses</span>
-          </div>
-        </div>
-      </div>
+      <h3 className="text-base font-semibold text-gray-900 mb-6">Spending by Category</h3>
 
       {data.length === 0 ? (
-        <div className="h-48 flex items-center justify-center text-sm text-gray-400">
-          No data for this period
+        <div className="h-56 flex items-center justify-center text-sm text-gray-400">
+          No expenses this month
         </div>
       ) : (
-        <div className="flex items-end gap-3 h-48">
-          {data.map((month) => {
-            const incomeH = (month.income / maxVal) * 100;
-            const expenseH = (month.expenses / maxVal) * 100;
-            const label = month.month.split('-')[1];
-            const monthNames = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        <div className="flex flex-col sm:flex-row items-center gap-6">
+          <div className="w-48 h-48 flex-shrink-0 relative">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={85}
+                  paddingAngle={2}
+                  dataKey="amount"
+                  stroke="none"
+                >
+                  {data.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-xs text-gray-500">Total</span>
+              <span className="text-lg font-bold text-gray-900">{formatCurrency(total)}</span>
+            </div>
+          </div>
 
-            return (
-              <div key={month.month} className="flex-1 flex flex-col items-center gap-1">
-                <div className="flex items-end gap-1 w-full h-40">
-                  <div
-                    className="flex-1 bg-emerald-500 rounded-t transition-all hover:bg-emerald-600 cursor-pointer"
-                    style={{ height: `${Math.max(incomeH, 2)}%` }}
-                    title={`Income: ${formatCurrency(month.income)}`}
-                  />
-                  <div
-                    className="flex-1 bg-red-400 rounded-t transition-all hover:bg-red-500 cursor-pointer"
-                    style={{ height: `${Math.max(expenseH, 2)}%` }}
-                    title={`Expenses: ${formatCurrency(month.expenses)}`}
-                  />
+          <div className="flex-1 space-y-2.5 w-full">
+            {data.slice(0, 6).map((item) => (
+              <div key={item.categoryId} className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: item.color }} />
+                  <span className="text-sm text-gray-600 truncate">{item.categoryName}</span>
                 </div>
-                <span className="text-xs text-gray-500">{monthNames[parseInt(label)]}</span>
+                <div className="flex items-center gap-3 ml-3 flex-shrink-0">
+                  <span className="text-sm font-medium text-gray-900">{formatCurrency(item.amount)}</span>
+                  <span className="text-xs text-gray-400 w-10 text-right">{item.percentage.toFixed(0)}%</span>
+                </div>
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
       )}
     </div>

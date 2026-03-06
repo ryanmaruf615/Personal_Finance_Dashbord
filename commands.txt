@@ -1,0 +1,18 @@
+cd ~/Documents/GitHub/Personal_Finance_Dashbord
+docker compose up -d
+
+export JAVA_HOME="/c/Program Files/Java/jdk-17"
+export PATH="$JAVA_HOME/bin:$PATH"
+cd backend
+mvn clean spring-boot:run
+
+terminal 2
+
+docker exec -it finance-db psql -U finance_user -d finance_db -c "INSERT INTO categories (name, icon, is_default, user_id, created_at) VALUES ('Food','FOOD',TRUE,NULL,CURRENT_TIMESTAMP),('Transport','TRANSPORT',TRUE,NULL,CURRENT_TIMESTAMP),('Housing','HOUSING',TRUE,NULL,CURRENT_TIMESTAMP),('Salary','SALARY',TRUE,NULL,CURRENT_TIMESTAMP),('Entertainment','ENTERTAINMENT',TRUE,NULL,CURRENT_TIMESTAMP),('Health','HEALTH',TRUE,NULL,CURRENT_TIMESTAMP),('Shopping','SHOPPING',TRUE,NULL,CURRENT_TIMESTAMP),('Utilities','UTILITIES',TRUE,NULL,CURRENT_TIMESTAMP),('Education','EDUCATION',TRUE,NULL,CURRENT_TIMESTAMP),('Travel','TRAVEL',TRUE,NULL,CURRENT_TIMESTAMP),('Gifts','GIFT',TRUE,NULL,CURRENT_TIMESTAMP),('Other','OTHER',TRUE,NULL,CURRENT_TIMESTAMP);"
+
+docker exec -it finance-db psql -U finance_user -d finance_db -c "INSERT INTO currency_rates (from_currency, to_currency, rate, effective_date) VALUES ('EUR','USD',1.080000,'2026-01-01'),('EUR','GBP',0.860000,'2026-01-01'),('EUR','CHF',0.950000,'2026-01-01'),('EUR','PLN',4.320000,'2026-01-01'),('USD','EUR',0.925926,'2026-01-01'),('GBP','EUR',1.162791,'2026-01-01'),('CHF','EUR',1.052632,'2026-01-01'),('PLN','EUR',0.231481,'2026-01-01');"
+
+
+Terminal 3 — Start Frontend:
+bashcd ~/Documents/GitHub/Personal_Finance_Dashbord/frontend
+npm run dev
