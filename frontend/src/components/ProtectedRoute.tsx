@@ -1,15 +1,20 @@
 import { Navigate, useLocation } from 'react-router-dom';
-import { getAccessToken } from '../api/axiosConfig';
+import { useAuth } from '../hooks/useAuth';
+import LoadingSpinner from './LoadingSpinner';
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
-
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children }: { children?: React.ReactNode }) => {
+  const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
-  const token = getAccessToken();
 
-  if (!token) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

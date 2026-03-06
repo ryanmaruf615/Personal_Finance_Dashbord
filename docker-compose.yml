@@ -27,7 +27,7 @@ services:
       POSTGRES_USER: finance_user        # superuser for this database
       POSTGRES_PASSWORD: finance_pass    # password (change in production!)
     ports:
-      - "5432:5432"                      # expose on localhost:5432 for local dev
+      - "5433:5432"                      # expose on localhost:5432 for local dev
     volumes:
       - pgdata:/var/lib/postgresql/data  # persist data across container restarts
     healthcheck:
