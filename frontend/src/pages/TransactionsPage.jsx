@@ -2,8 +2,8 @@ import { useState, useCallback } from 'react';
 import { useTransactions } from '../hooks/useTransactions';
 import TransactionFilters from '../components/transactions/TransactionFilters';
 import TransactionList from '../components/transactions/TransactionList';
+import TransactionForm from '../components/transactions/TransactionForm';
 import { Pagination, EmptyState, ConfirmDialog } from '../components/shared';
-import LoadingSpinner from '../components/LoadingSpinner';
 import { transactionApi } from '../api/transactionApi';
 import toast from 'react-hot-toast';
 
@@ -20,6 +20,7 @@ const DEFAULT_FILTERS = {
 
 const TransactionsPage = () => {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [formOpen, setFormOpen] = useState(false);
   const [editingTx, setEditingTx] = useState(null);
   const [deletingTx, setDeletingTx] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -33,7 +34,6 @@ const TransactionsPage = () => {
     loading,
     error,
     refresh,
-    changePage,
   } = useTransactions(filters);
 
   const handleFilterChange = useCallback((newFilters) => {
@@ -48,12 +48,19 @@ const TransactionsPage = () => {
     setFilters((prev) => ({ ...prev, page: newPage }));
   }, []);
 
-  const handleEdit = useCallback((tx) => {
-    setEditingTx(tx);
-    // TODO: Open edit modal (next prompt)
-    toast('Edit modal coming soon!', { icon: '🚧' });
+  // ─── Add ──────────────────────────────────────────────────────────
+  const handleAddNew = useCallback(() => {
+    setEditingTx(null);
+    setFormOpen(true);
   }, []);
 
+  // ─── Edit ─────────────────────────────────────────────────────────
+  const handleEdit = useCallback((tx) => {
+    setEditingTx(tx);
+    setFormOpen(true);
+  }, []);
+
+  // ─── Delete ───────────────────────────────────────────────────────
   const handleDeleteClick = useCallback((tx) => {
     setDeletingTx(tx);
   }, []);
@@ -73,11 +80,10 @@ const TransactionsPage = () => {
     }
   }, [deletingTx, refresh]);
 
-  const handleAddNew = useCallback(() => {
-    setEditingTx({});
-    // TODO: Open add modal (next prompt)
-    toast('Add modal coming soon!', { icon: '🚧' });
-  }, []);
+  // ─── Form success ─────────────────────────────────────────────────
+  const handleFormSuccess = useCallback(() => {
+    refresh();
+  }, [refresh]);
 
   return (
     <div className="space-y-6">
@@ -153,6 +159,14 @@ const TransactionsPage = () => {
           onPageChange={handlePageChange}
         />
       )}
+
+      {/* Add / Edit Modal */}
+      <TransactionForm
+        isOpen={formOpen}
+        onClose={() => setFormOpen(false)}
+        transaction={editingTx}
+        onSuccess={handleFormSuccess}
+      />
 
       {/* Delete Confirm Dialog */}
       <ConfirmDialog

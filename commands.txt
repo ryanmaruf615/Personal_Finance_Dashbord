@@ -14,5 +14,6 @@ docker exec -it finance-db psql -U finance_user -d finance_db -c "INSERT INTO cu
 
 
 Terminal 3 — Start Frontend:
-bashcd ~/Documents/GitHub/Personal_Finance_Dashbord/frontend
+
+cd ~/Documents/GitHub/Personal_Finance_Dashbord/frontend
 npm run dev
