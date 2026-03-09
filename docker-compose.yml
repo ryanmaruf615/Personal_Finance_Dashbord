@@ -1,85 +1,77 @@
 # ==============================================================
-# Docker Compose — Personal Finance Dashboard
+# Docker Compose — Personal Finance Dashboard (Full Stack)
 # ==============================================================
-# Quick start for development:
-#   docker compose up postgres -d        ← start only the database
-#   cd backend && mvn spring-boot:run    ← run backend locally
-#   cd frontend && npm run dev           ← run frontend locally
-#
-# Full stack (after Dockerfiles are created on Day 6):
-#   docker compose up --build            ← builds and starts everything
-#
-# Tear down (removes containers + data):
-#   docker compose down -v
+# Start everything:    docker compose up --build
+# Start DB only:       docker compose up postgres -d
+# Tear down + data:    docker compose down -v
 # ==============================================================
 
 version: '3.8'
 
 services:
 
-  # ---- PostgreSQL 15 Database ----
+  # ─── PostgreSQL 15 Database ────────────────────────────────────
   postgres:
     image: postgres:15-alpine
     container_name: finance-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: finance_db            # database name (created on first start)
-      POSTGRES_USER: finance_user        # superuser for this database
-      POSTGRES_PASSWORD: finance_pass    # password (change in production!)
+      POSTGRES_DB: finance_db
+      POSTGRES_USER: finance_user
+      POSTGRES_PASSWORD: finance_pass
     ports:
-      - "5433:5432"                      # expose on localhost:5432 for local dev
+      - "5433:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data  # persist data across container restarts
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - finance-network
     healthcheck:
-      # pg_isready returns 0 when PostgreSQL is accepting connections
       test: ["CMD-SHELL", "pg_isready -U finance_user -d finance_db"]
-      interval: 10s                      # check every 10 seconds
-      timeout: 5s                        # fail if check takes > 5s
-      retries: 5                         # mark unhealthy after 5 consecutive failures
-      start_period: 10s                  # wait 10s before first check (DB startup time)
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
-  # ---- Spring Boot Backend ----
-  # Uncomment after creating backend/Dockerfile on Day 6
-  # backend:
-  #   build: ./backend
-  #   container_name: finance-backend
-  #   restart: unless-stopped
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     SPRING_PROFILES_ACTIVE: docker
-  #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/finance_db
-  #     SPRING_DATASOURCE_USERNAME: finance_user
-  #     SPRING_DATASOURCE_PASSWORD: finance_pass
-  #     APP_JWT_SECRET: bXlfc3VwZXJfc2VjcmV0X2tleV9mb3JfZmluYW5jZV9hcHBfMjAyNl9jaGFuZ2VfaW5fcHJvZA==
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #   networks:
-  #     - finance-network
+  # ─── Spring Boot Backend ───────────────────────────────────────
+  backend:
+    build: ./backend
+    container_name: finance-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/finance_db
+      SPRING_DATASOURCE_USERNAME: finance_user
+      SPRING_DATASOURCE_PASSWORD: finance_pass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create
+      SPRING_FLYWAY_ENABLED: "false"
+      APP_JWT_SECRET: bXlfc3VwZXJfc2VjcmV0X2tleV9mb3JfZmluYW5jZV9hcHBfMjAyNl9jaGFuZ2VfaW5fcHJvZA==
+      APP_JWT_ACCESS_TOKEN_EXPIRATION: "900000"
+      APP_JWT_REFRESH_TOKEN_EXPIRATION: "604800000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - finance-network
 
-  # ---- React Frontend ----
-  # Uncomment after creating frontend/Dockerfile on Day 6
-  # frontend:
-  #   build: ./frontend
-  #   container_name: finance-frontend
-  #   restart: unless-stopped
-  #   ports:
-  #     - "3000:80"
-  #   depends_on:
-  #     - backend
-  #   networks:
-  #     - finance-network
+  # ─── React Frontend (Nginx) ────────────────────────────────────
+  frontend:
+    build: ./frontend
+    container_name: finance-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - finance-network
 
-# ---- Named Volumes ----
-# Docker manages this volume; data survives container restarts.
-# Use "docker compose down -v" to delete it and start fresh.
+# ─── Volumes ─────────────────────────────────────────────────────
 volumes:
   pgdata:
     driver: local
 
-# ---- Network ----
-# Uncomment when backend + frontend services are added on Day 6
-# networks:
-#   finance-network:
-#     driver: bridge
+# ─── Network ─────────────────────────────────────────────────────
+networks:
+  finance-network:
+    driver: bridge
