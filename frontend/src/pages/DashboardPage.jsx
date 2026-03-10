@@ -24,11 +24,11 @@ const DashboardPage = () => {
   const { budgetStatus, loading: budgetLoading } = useBudgets();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">
           Financial overview for {formatMonthYear(currentMonth)}
         </p>
       </div>
@@ -40,8 +40,8 @@ const DashboardPage = () => {
         loading={analyticsLoading || txLoading}
       />
 
-      {/* Row 2: Income vs Expenses Bar Chart + Budget Alerts */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      {/* Row 2: Income vs Expenses Chart + Budget Alerts */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
         <div className="lg:col-span-3">
           <TrendChart monthlySummary={monthlySummary} loading={analyticsLoading} />
         </div>
@@ -51,7 +51,7 @@ const DashboardPage = () => {
       </div>
 
       {/* Row 3: Category Pie Chart + Recent Transactions */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
         <div className="lg:col-span-3">
           <SpendingChart categoryBreakdown={categoryBreakdown} loading={analyticsLoading} />
         </div>
