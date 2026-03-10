@@ -25,7 +25,7 @@ spring:
   # Override via environment variables in production:
   #   SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
   datasource:
-    url: jdbc:postgresql://localhost:5433/finance_db
+    url: jdbc:postgresql://localhost:5432/finance_db
     username: finance_user
     password: finance_pass
     driver-class-name: org.postgresql.Driver
@@ -64,7 +64,7 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
-    baseline-on-migrate: false        # handle existing databases gracefully
+    baseline-on-migrate: true        # handle existing databases gracefully
 
   # ---- Jackson JSON Serialization ----
   jackson:
@@ -84,7 +84,7 @@ app:
   # ---- Demo Data ----
   # When true, DemoDataSeeder inserts sample user + transactions on startup
   demo-data:
-    enabled: false
+    enabled: true
 
 # ---- SpringDoc / Swagger UI ----
 # Access interactive API docs at: http://localhost:8080/swagger-ui.html
