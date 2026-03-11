@@ -4,6 +4,7 @@
 # Start everything:    docker compose up --build
 # Start DB only:       docker compose up postgres -d
 # Tear down + data:    docker compose down -v
+# Run tests:           bash scripts/test-docker.sh
 # ==============================================================
 
 version: '3.8'
@@ -40,11 +41,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/finance_db
-      SPRING_DATASOURCE_USERNAME: finance_user
-      SPRING_DATASOURCE_PASSWORD: finance_pass
-      SPRING_JPA_HIBERNATE_DDL_AUTO: create
-      SPRING_FLYWAY_ENABLED: "false"
+      SPRING_PROFILES_ACTIVE: docker
       APP_JWT_SECRET: bXlfc3VwZXJfc2VjcmV0X2tleV9mb3JfZmluYW5jZV9hcHBfMjAyNl9jaGFuZ2VfaW5fcHJvZA==
       APP_JWT_ACCESS_TOKEN_EXPIRATION: "900000"
       APP_JWT_REFRESH_TOKEN_EXPIRATION: "604800000"
@@ -53,6 +50,12 @@ services:
         condition: service_healthy
     networks:
       - finance-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   # ─── React Frontend (Nginx) ────────────────────────────────────
   frontend:
@@ -62,7 +65,8 @@ services:
     ports:
       - "3000:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - finance-network
 

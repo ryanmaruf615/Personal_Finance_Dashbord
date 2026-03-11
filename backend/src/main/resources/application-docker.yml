@@ -1,0 +1,43 @@
+# ==============================================================
+# Docker Profile Configuration
+# ==============================================================
+# Activated via SPRING_PROFILES_ACTIVE=docker in docker-compose.yml
+# Overrides values from application.yml for containerized deployment
+# ==============================================================
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/finance_db
+    username: finance_user
+    password: finance_pass
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  flyway:
+    enabled: false
+
+# Demo data enabled by default in Docker
+app:
+  demo-data:
+    enabled: true
+
+# Actuator — allow unauthenticated health checks in Docker
+management:
+  endpoint:
+    health:
+      show-details: always
+
+# Less verbose logging in Docker
+logging:
+  level:
+    com.financeapp: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql: WARN
+    org.flywaydb: INFO
