@@ -1,0 +1,792 @@
+{
+	"info": {
+		"_postman_id": "finance-dashboard-2026",
+		"name": "Personal Finance Dashboard",
+		"description": "Full API collection for the Personal Finance Dashboard.\n\n**Setup:**\n1. Set `baseUrl` variable to `http://localhost:8080`\n2. Run \"Register\" or \"Login\" — the access token is auto-saved\n3. All authenticated endpoints use `{{accessToken}}` automatically\n\n**Demo Account:** demo@financeapp.com / demo123",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "accountId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "transactionId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "budgetId",
+			"value": "1",
+			"type": "string"
+		},
+		{
+			"key": "categoryId",
+			"value": "1",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"description": "Authentication endpoints — register, login, refresh, profile",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('accessToken', json.access_token);",
+									"    pm.collectionVariables.set('refreshToken', json.refresh_token);",
+									"    console.log('Token saved from register');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('accessToken', json.access_token);",
+									"    pm.collectionVariables.set('refreshToken', json.refresh_token);",
+									"    console.log('Token saved from login');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"demo@financeapp.com\",\n  \"password\": \"demo123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Login (Demo User)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('accessToken', json.access_token);",
+									"    pm.collectionVariables.set('refreshToken', json.refresh_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"demo@financeapp.com\",\n  \"password\": \"demo123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('accessToken', json.access_token);",
+									"    pm.collectionVariables.set('refreshToken', json.refresh_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/refresh",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "refresh"]
+						}
+					}
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "me"]
+						}
+					}
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"Jonathan\",\n  \"lastName\": \"Doe\",\n  \"preferredCurrency\": \"EUR\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "auth", "me"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Accounts",
+			"description": "Account management — CRUD + archive",
+			"item": [
+				{
+					"name": "List Accounts",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/accounts",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "accounts"]
+						}
+					}
+				},
+				{
+					"name": "List Accounts (incl. archived)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/accounts?includeArchived=true",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "accounts"],
+							"query": [{ "key": "includeArchived", "value": "true" }]
+						}
+					}
+				},
+				{
+					"name": "Create Account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('accountId', json.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Main Checking\",\n  \"type\": \"CHECKING\",\n  \"currency\": \"EUR\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/accounts",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "accounts"]
+						}
+					}
+				},
+				{
+					"name": "Update Account",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Checking\",\n  \"type\": \"CHECKING\",\n  \"currency\": \"EUR\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/accounts/{{accountId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "accounts", "{{accountId}}"]
+						}
+					}
+				},
+				{
+					"name": "Archive Account",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/accounts/{{accountId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "accounts", "{{accountId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Transactions",
+			"description": "Transaction CRUD with filtering and pagination",
+			"item": [
+				{
+					"name": "List Transactions",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions?page=0&size=20&sort=transactionDate,desc",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "transactions"],
+							"query": [
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "20" },
+								{ "key": "sort", "value": "transactionDate,desc" }
+							]
+						}
+					}
+				},
+				{
+					"name": "List Transactions (Filtered)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions?type=EXPENSE&categoryId=1&startDate=2026-03-01&endDate=2026-03-31&search=Lidl&page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "transactions"],
+							"query": [
+								{ "key": "type", "value": "EXPENSE" },
+								{ "key": "categoryId", "value": "1" },
+								{ "key": "startDate", "value": "2026-03-01" },
+								{ "key": "endDate", "value": "2026-03-31" },
+								{ "key": "search", "value": "Lidl" },
+								{ "key": "page", "value": "0" },
+								{ "key": "size", "value": "10" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Transaction by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "transactions", "{{transactionId}}"]
+						}
+					}
+				},
+				{
+					"name": "Create Transaction",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('transactionId', json.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount\": 45.50,\n  \"type\": \"EXPENSE\",\n  \"description\": \"REWE Berger Straße\",\n  \"transactionDate\": \"2026-03-10\",\n  \"accountId\": {{accountId}},\n  \"categoryId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "transactions"]
+						}
+					}
+				},
+				{
+					"name": "Update Transaction",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"amount\": 52.00,\n  \"type\": \"EXPENSE\",\n  \"description\": \"REWE Updated\",\n  \"transactionDate\": \"2026-03-10\",\n  \"accountId\": {{accountId}},\n  \"categoryId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "transactions", "{{transactionId}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Transaction",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/{{transactionId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "transactions", "{{transactionId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"description": "Category management",
+			"item": [
+				{
+					"name": "List Categories",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categories"]
+						}
+					}
+				},
+				{
+					"name": "Create Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Side Hustle\",\n  \"icon\": \"OTHER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "categories"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Budgets",
+			"description": "Budget management with status tracking",
+			"item": [
+				{
+					"name": "List Budgets",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/budgets?yearMonth=2026-03",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "budgets"],
+							"query": [{ "key": "yearMonth", "value": "2026-03" }]
+						}
+					}
+				},
+				{
+					"name": "Create/Update Budget",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.collectionVariables.set('budgetId', json.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Content-Type", "value": "application/json" },
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"categoryId\": 1,\n  \"amountLimit\": 400.00,\n  \"yearMonth\": \"2026-03\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/budgets",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "budgets"]
+						}
+					}
+				},
+				{
+					"name": "Get Budget Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/budgets/status?yearMonth=2026-03",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "budgets", "status"],
+							"query": [{ "key": "yearMonth", "value": "2026-03" }]
+						}
+					}
+				},
+				{
+					"name": "Delete Budget",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/budgets/{{budgetId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "budgets", "{{budgetId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Analytics",
+			"description": "Chart data endpoints",
+			"item": [
+				{
+					"name": "Monthly Summary (6 months)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/analytics/monthly-summary?months=6",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "analytics", "monthly-summary"],
+							"query": [{ "key": "months", "value": "6" }]
+						}
+					}
+				},
+				{
+					"name": "Monthly Summary (12 months)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/analytics/monthly-summary?months=12",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "analytics", "monthly-summary"],
+							"query": [{ "key": "months", "value": "12" }]
+						}
+					}
+				},
+				{
+					"name": "Category Breakdown",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/analytics/category-breakdown?yearMonth=2026-03",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "analytics", "category-breakdown"],
+							"query": [{ "key": "yearMonth", "value": "2026-03" }]
+						}
+					}
+				},
+				{
+					"name": "Daily Spending",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/analytics/daily-spending?yearMonth=2026-03",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "analytics", "daily-spending"],
+							"query": [{ "key": "yearMonth", "value": "2026-03" }]
+						}
+					}
+				},
+				{
+					"name": "Top Categories",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/analytics/top-categories?yearMonth=2026-03&limit=5",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "analytics", "top-categories"],
+							"query": [
+								{ "key": "yearMonth", "value": "2026-03" },
+								{ "key": "limit", "value": "5" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Month Comparison",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/analytics/comparison?month1=2026-02&month2=2026-03",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "analytics", "comparison"],
+							"query": [
+								{ "key": "month1", "value": "2026-02" },
+								{ "key": "month2", "value": "2026-03" }
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "CSV Import",
+			"description": "Import transactions from CSV file",
+			"item": [
+				{
+					"name": "Preview CSV",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "sample-bank-statement.csv",
+									"description": "Select the CSV file to preview"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/import/preview",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "transactions", "import", "preview"]
+						}
+					}
+				},
+				{
+					"name": "Import CSV",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "sample-bank-statement.csv",
+									"description": "Select the CSV file to import"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/import/confirm?accountId={{accountId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "transactions", "import", "confirm"],
+							"query": [{ "key": "accountId", "value": "{{accountId}}" }]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"description": "Admin-only endpoints (requires ROLE_ADMIN)",
+			"item": [
+				{
+					"name": "Platform Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/stats",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "stats"]
+						}
+					}
+				},
+				{
+					"name": "List All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{accessToken}}" }
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/users",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "users"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Health",
+			"description": "Health and info endpoints",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/actuator/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["actuator", "health"]
+						}
+					}
+				},
+				{
+					"name": "Swagger UI",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/swagger-ui.html",
+							"host": ["{{baseUrl}}"],
+							"path": ["swagger-ui.html"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,21 @@
+date,description,amount,type,category
+2026-03-01,Gehalt - TechCorp GmbH,3850.00,INCOME,Salary
+2026-03-01,Miete - Wohnung Frankfurt,950.00,EXPENSE,Housing
+2026-03-02,REWE Berger Straße,47.83,EXPENSE,Food
+2026-03-03,Stadtwerke Frankfurt - Strom,85.00,EXPENSE,Utilities
+2026-03-04,Lidl Bockenheim,32.15,EXPENSE,Food
+2026-03-05,Deutschlandticket März,49.00,EXPENSE,Transport
+2026-03-05,Vodafone Internet,39.99,EXPENSE,Utilities
+2026-03-06,Netflix Premium,17.99,EXPENSE,Entertainment
+2026-03-06,Spotify Family,14.99,EXPENSE,Entertainment
+2026-03-07,TK Krankenkasse,108.00,EXPENSE,Health
+2026-03-08,ALDI Sachsenhausen,28.90,EXPENSE,Food
+2026-03-10,MediaMarkt - USB-C Hub,34.99,EXPENSE,Shopping
+2026-03-11,Deutsche Bahn ICE Berlin,89.00,EXPENSE,Transport
+2026-03-12,Edeka Nordend,55.20,EXPENSE,Food
+2026-03-14,Freelance Webprojekt,750.00,INCOME,Salary
+2026-03-15,dm Drogerie Zeil,22.45,EXPENSE,Shopping
+2026-03-18,Döner Kebab Berger Str.,7.50,EXPENSE,Food
+2026-03-20,Amazon.de - Fachbuch Java,29.99,EXPENSE,Education
+2026-03-22,Shell Tankstelle Hanauer,72.50,EXPENSE,Transport
+2026-03-25,IKEA Frankfurt Nieder-Eschbach,87.50,EXPENSE,Shopping

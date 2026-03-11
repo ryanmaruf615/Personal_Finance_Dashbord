@@ -313,12 +313,7 @@ Contributions are welcome! Please follow these steps:
 
 ---
 
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
----
 
 <p align="center">
-  Built with ☕ Java + ⚛️ React by <a href="https://github.com/YOUR_USERNAME">Md Maruf Hossain</a>
+  Built with ☕ Java + ⚛️ React by <a href="https://github.com/ryanmaruf615">Md Maruf Hossain</a>
 </p>
